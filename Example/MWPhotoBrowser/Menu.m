@@ -1115,12 +1115,12 @@
 	// Create browser
 	MWPhotoBrowser *browser = [[MWPhotoBrowser alloc] initWithDelegate:self];
     browser.displayActionButton = displayActionButton;
-    browser.displayNavArrows = displayNavArrows;
-    browser.displaySelectionButtons = displaySelectionButtons;
-    browser.alwaysShowControls = displaySelectionButtons;
-    browser.zoomPhotosToFill = YES;
-    browser.enableGrid = enableGrid;
-    browser.startOnGrid = startOnGrid;
+    browser.displayNavArrows = NO;
+    browser.displaySelectionButtons = NO;
+    browser.alwaysShowControls = NO;
+    browser.zoomPhotosToFill = NO;
+    browser.enableGrid = NO;
+    browser.startOnGrid = NO;
     browser.enableSwipeToDismiss = NO;
     browser.autoPlayOnAppear = autoPlayOnAppear;
     [browser setCurrentPhotoIndex:0];
@@ -1143,9 +1143,9 @@
         [self.navigationController pushViewController:browser animated:YES];
     } else {
         // Modal
-        UINavigationController *nc = [[UINavigationController alloc] initWithRootViewController:browser];
-        nc.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
-        [self presentViewController:nc animated:YES completion:nil];
+//        UINavigationController *nc = [[UINavigationController alloc] initWithRootViewController:browser];
+//        nc.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+        [self presentViewController:browser animated:YES completion:nil];
     }
     
     // Release

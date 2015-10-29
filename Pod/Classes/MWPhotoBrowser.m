@@ -158,14 +158,33 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
 	[self.view addSubview:_pagingScrollView];
 	
+    CGFloat margin = 10;
+    CGFloat cWidth = 60;
+    _pageInfoLable = [[UILabel alloc] init];
+    _pageInfoLable.textColor = [UIColor whiteColor];
+    _pageInfoLable.textAlignment = NSTextAlignmentCenter;
+    _pageInfoLable.font = [UIFont systemFontOfSize:12];
+    _pageInfoLable.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.2];
+    CGFloat lableH = [_pageInfoLable.font lineHeight] + 20;
+    _pageInfoLable.frame = CGRectMake(margin, self.view.frame.size.height - lableH - margin, cWidth, lableH);
+    [self.view addSubview:_pageInfoLable];
+    
+    _saveImageButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _saveImageButton.frame = CGRectMake( self.view.frame.size.width - cWidth - margin, _pageInfoLable.frame.origin.y, cWidth, lableH);
+    [_saveImageButton setBackgroundColor:_pageInfoLable.backgroundColor];
+    [_saveImageButton setTitle:@"保存" forState:UIControlStateNormal];
+    _saveImageButton.titleLabel.font = _pageInfoLable.font;
+    [_saveImageButton addTarget:self action:@selector() forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:_saveImageButton];
+    
     // Toolbar
-    _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:self.interfaceOrientation]];
-    _toolbar.tintColor = [UIColor whiteColor];
-    _toolbar.barTintColor = nil;
-    [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
-    [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
-    _toolbar.barStyle = UIBarStyleBlackTranslucent;
-    _toolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
+//    _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:self.interfaceOrientation]];
+//    _toolbar.tintColor = [UIColor whiteColor];
+//    _toolbar.barTintColor = nil;
+//    [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
+//    [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
+//    _toolbar.barStyle = UIBarStyleBlackTranslucent;
+//    _toolbar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
     
     // Toolbar Items
     if (self.displayNavArrows) {
@@ -1075,9 +1094,10 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     
 	// Title
     NSUInteger numberOfPhotos = [self numberOfPhotos];
+    NSString *pageMessage = nil;
     if (_gridController) {
         if (_gridController.selectionMode) {
-            self.title = NSLocalizedString(@"Select Photos", nil);
+            pageMessage = NSLocalizedString(@"Select Photos", nil);
         } else {
             NSString *photosText;
             if (numberOfPhotos == 1) {
@@ -1085,18 +1105,23 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             } else {
                 photosText = NSLocalizedString(@"photos", @"Used in the context: '3 photos'");
             }
-            self.title = [NSString stringWithFormat:@"%lu %@", (unsigned long)numberOfPhotos, photosText];
+            pageMessage = [NSString stringWithFormat:@"%lu %@", (unsigned long)numberOfPhotos, photosText];
         }
     } else if (numberOfPhotos > 1) {
         if ([_delegate respondsToSelector:@selector(photoBrowser:titleForPhotoAtIndex:)]) {
-            self.title = [_delegate photoBrowser:self titleForPhotoAtIndex:_currentPageIndex];
+            pageMessage = [_delegate photoBrowser:self titleForPhotoAtIndex:_currentPageIndex];
         } else {
-            self.title = [NSString stringWithFormat:@"%lu %@ %lu", (unsigned long)(_currentPageIndex+1), NSLocalizedString(@"of", @"Used in the context: 'Showing 1 of 3 items'"), (unsigned long)numberOfPhotos];
+            pageMessage = [NSString stringWithFormat:@"%lu/%lu", (unsigned long)(_currentPageIndex+1), (unsigned long)numberOfPhotos];
         }
-	} else {
-		self.title = nil;
+    } else if (numberOfPhotos == 1){
+        pageMessage = [NSString stringWithFormat:@"%lu", (unsigned long)numberOfPhotos];
+    }
+    else {
+		pageMessage = nil;
 	}
 	
+    _pageInfoLable.text = pageMessage;
+    
 	// Buttons
 	_previousButton.enabled = (_currentPageIndex > 0);
 	_nextButton.enabled = (_currentPageIndex < numberOfPhotos - 1);
@@ -1503,7 +1528,16 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 - (BOOL)areControlsHidden { return (_toolbar.alpha == 0); }
 - (void)hideControls { [self setControlsHidden:YES animated:YES permanent:NO]; }
 - (void)showControls { [self setControlsHidden:NO animated:YES permanent:NO]; }
-- (void)toggleControls { [self setControlsHidden:![self areControlsHidden] animated:YES permanent:NO]; }
+//- (void)toggleControls { [self setControlsHidden:![self areControlsHidden] animated:YES permanent:NO]; }
+-(void)toggleControls
+{
+    if ([_delegate respondsToSelector:@selector(photoBrowserDidFinishModalPresentation:)]) {
+        // Call delegate method and let them dismiss us
+        [_delegate photoBrowserDidFinishModalPresentation:self];
+    } else  {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
+}
 
 #pragma mark - Properties
 

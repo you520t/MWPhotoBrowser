@@ -37,6 +37,10 @@
 	UIBarButtonItem *_previousButton, *_nextButton, *_actionButton, *_doneButton;
     MBProgressHUD *_progressHUD;
     
+    //Lcy controls
+    UILabel *_pageInfoLable;
+    UIButton *_saveImageButton;
+    
     // Grid
     MWGridViewController *_gridController;
     UIBarButtonItem *_gridPreviousLeftNavItem;
