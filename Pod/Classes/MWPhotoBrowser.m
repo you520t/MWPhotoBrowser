@@ -1085,7 +1085,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
     // Hide controls when dragging begins
-    [self setControlsHidden:YES animated:YES permanent:NO];
+//    [self setControlsHidden:YES animated:YES permanent:NO];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
@@ -1460,7 +1460,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         // Nav bar slides up on it's own on iOS 7+
         [self.navigationController.navigationBar setAlpha:alpha];
         
-        [_topView setAlpha:(self.areTopViewHidden ? 1 : 0)];
+        [_topView setAlpha:[self areTopViewHidden]];
         
         // Toolbar
         _toolbar.frame = [self frameForToolbarAtOrientation:self.interfaceOrientation];
