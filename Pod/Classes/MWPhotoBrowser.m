@@ -159,24 +159,28 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     _pagingScrollView.contentSize = [self contentSizeForPagingScrollView];
     [self.view addSubview:_pagingScrollView];
     
-    CGFloat margin = 10;
     CGFloat cWidth = 60;
+    _topView = [[UIView alloc] initWithFrame:CGRectMake(0, 20, self.view.frame.size.width, 44)];
+    [self.view addSubview:_topView];
+    
     _pageInfoLable = [[UILabel alloc] init];
     _pageInfoLable.textColor = [UIColor whiteColor];
     _pageInfoLable.textAlignment = NSTextAlignmentCenter;
-    _pageInfoLable.font = [UIFont systemFontOfSize:12];
-    _pageInfoLable.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.2];
+    _pageInfoLable.font = [UIFont systemFontOfSize:15];
     CGFloat lableH = [_pageInfoLable.font lineHeight] + 20;
-    _pageInfoLable.frame = CGRectMake(margin, self.view.frame.size.height - lableH - margin, cWidth, lableH);
-    [self.view addSubview:_pageInfoLable];
+    _pageInfoLable.frame = CGRectMake((self.view.frame.size.width-cWidth)/2, (_topView.frame.size.height - lableH)/2, cWidth, lableH);
+    [_topView addSubview:_pageInfoLable];
     
-    _saveImageButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _saveImageButton.frame = CGRectMake( self.view.frame.size.width - cWidth - margin, _pageInfoLable.frame.origin.y, cWidth, lableH);
-    [_saveImageButton setBackgroundColor:_pageInfoLable.backgroundColor];
-    [_saveImageButton setTitle:@"保存" forState:UIControlStateNormal];
-    _saveImageButton.titleLabel.font = _pageInfoLable.font;
-    [_saveImageButton addTarget:self action:@selector(saveImage:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:_saveImageButton];
+    _navBackButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [_navBackButton setImage:[UIImage imageForResourcePath:@"MWPhotoBrowser.bundle/photo_nav_back@3x" ofType:@"png" inBundle:[NSBundle bundleForClass:[self class]]] forState:UIControlStateNormal];
+    [_navBackButton addTarget:self action:@selector(navBackClick:) forControlEvents:UIControlEventTouchUpInside];
+    _navBackButton.frame = CGRectMake(0, 0, 60, _topView.frame.size.height);
+    [_topView addSubview:_navBackButton];
+//    [_saveImageButton setBackgroundColor:_pageInfoLable.backgroundColor];
+//    [_saveImageButton setTitle:@"保存" forState:UIControlStateNormal];
+//    _saveImageButton.titleLabel.font = _pageInfoLable.font;
+//    [_saveImageButton addTarget:self action:@selector(saveImage:) forControlEvents:UIControlEventTouchUpInside];
+//    [self.view addSubview:_saveImageButton];
     
     // Toolbar
     //    _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:self.interfaceOrientation]];
@@ -1456,6 +1460,8 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         // Nav bar slides up on it's own on iOS 7+
         [self.navigationController.navigationBar setAlpha:alpha];
         
+        [_topView setAlpha:(self.areTopViewHidden ? 1 : 0)];
+        
         // Toolbar
         _toolbar.frame = [self frameForToolbarAtOrientation:self.interfaceOrientation];
         if (hidden) _toolbar.frame = CGRectOffset(_toolbar.frame, 0, animatonOffset);
@@ -1526,16 +1532,16 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 }
 
 - (BOOL)areControlsHidden { return (_toolbar.alpha == 0); }
+-(BOOL)areTopViewHidden {return _topView.alpha == 0 ;}
 - (void)hideControls { [self setControlsHidden:YES animated:YES permanent:NO]; }
 - (void)showControls { [self setControlsHidden:NO animated:YES permanent:NO]; }
-//- (void)toggleControls { [self setControlsHidden:![self areControlsHidden] animated:YES permanent:NO]; }
 -(void)toggleControls
 {
-    if ([_delegate respondsToSelector:@selector(photoBrowserDidFinishModalPresentation:)]) {
+    [self setControlsHidden:![self areControlsHidden] animated:YES permanent:NO];
+    
+    if ([_delegate respondsToSelector:@selector(photoBrowserSingleTap:)]) {
         // Call delegate method and let them dismiss us
-        [_delegate photoBrowserDidFinishModalPresentation:self];
-    } else  {
-        [self dismissViewControllerAnimated:YES completion:nil];
+        [_delegate photoBrowserSingleTap:self];
     }
 }
 
@@ -1573,13 +1579,13 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
                 return;
             }
         }
-        // Dismiss view controller
-        if ([_delegate respondsToSelector:@selector(photoBrowserDidFinishModalPresentation:)]) {
-            // Call delegate method and let them dismiss us
-            [_delegate photoBrowserDidFinishModalPresentation:self];
-        } else  {
-            [self dismissViewControllerAnimated:YES completion:nil];
-        }
+    }
+    // Dismiss view controller
+    if ([_delegate respondsToSelector:@selector(photoBrowserDidFinishModalPresentation:)]) {
+        // Call delegate method and let them dismiss us
+        [_delegate photoBrowserDidFinishModalPresentation:self];
+    } else  {
+        [self dismissViewControllerAnimated:YES completion:nil];
     }
 }
 
@@ -1609,6 +1615,16 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     }else{
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"提示" message:@"保存失败" delegate:self cancelButtonTitle:nil otherButtonTitles:@"确定", nil, nil];
         [alert show];
+    }
+}
+
+-(void)navBackClick:(id)sender
+{
+    if ([_delegate respondsToSelector:@selector(photoBrowserDidFinishModalPresentation:)]) {
+        // Call delegate method and let them dismiss us
+        [_delegate photoBrowserDidFinishModalPresentation:self];
+    } else  {
+        [self dismissViewControllerAnimated:YES completion:nil];
     }
 }
 

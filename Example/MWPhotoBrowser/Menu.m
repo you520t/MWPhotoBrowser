@@ -1115,13 +1115,13 @@
 	// Create browser
 	MWPhotoBrowser *browser = [[MWPhotoBrowser alloc] initWithDelegate:self];
     browser.displayActionButton = displayActionButton;
-    browser.displayNavArrows = NO;
+    browser.displayNavArrows = YES;
     browser.displaySelectionButtons = NO;
     browser.alwaysShowControls = NO;
     browser.zoomPhotosToFill = NO;
     browser.enableGrid = NO;
     browser.startOnGrid = NO;
-    browser.enableSwipeToDismiss = NO;
+    browser.enableSwipeToDismiss = YES;
     browser.autoPlayOnAppear = autoPlayOnAppear;
     [browser setCurrentPhotoIndex:0];
     
@@ -1199,11 +1199,12 @@
     return nil;
 }
 
-//- (MWCaptionView *)photoBrowser:(MWPhotoBrowser *)photoBrowser captionViewForPhotoAtIndex:(NSUInteger)index {
+- (MWCaptionView *)photoBrowser:(MWPhotoBrowser *)photoBrowser captionViewForPhotoAtIndex:(NSUInteger)index {
 //    MWPhoto *photo = [self.photos objectAtIndex:index];
 //    MWCaptionView *captionView = [[MWCaptionView alloc] initWithPhoto:photo];
 //    return [captionView autorelease];
-//}
+    return nil;
+}
 
 //- (void)photoBrowser:(MWPhotoBrowser *)photoBrowser actionButtonPressedForPhotoAtIndex:(NSUInteger)index {
 //    NSLog(@"ACTION!");
@@ -1226,10 +1227,10 @@
     NSLog(@"Photo at index %lu selected %@", (unsigned long)index, selected ? @"YES" : @"NO");
 }
 
-- (void)photoBrowserDidFinishModalPresentation:(MWPhotoBrowser *)photoBrowser {
+- (void)photoBrowserSingleTap:(MWPhotoBrowser *)photoBrowser {
     // If we subscribe to this method we must dismiss the view controller ourselves
     NSLog(@"Did finish modal presentation");
-    [self dismissViewControllerAnimated:YES completion:nil];
+//    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - Load Assets

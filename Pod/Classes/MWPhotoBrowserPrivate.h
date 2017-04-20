@@ -38,7 +38,9 @@
     MBProgressHUD *_progressHUD;
     
     //Lcy controls
+    UIView *_topView;
     UILabel *_pageInfoLable;
+    UIButton *_navBackButton;
     UIButton *_saveImageButton;
     
     // Grid
